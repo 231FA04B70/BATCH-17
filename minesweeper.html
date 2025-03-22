@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minesweeper</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #1a1a1a;
+            color: white;
+        }
+        .game-container {
+            margin-top: 50px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(9, 40px);
+            grid-template-rows: repeat(9, 40px);
+            gap: 2px;
+            justify-content: center;
+            margin: auto;
+        }
+        .cell {
+            width: 40px;
+            height: 40px;
+            background: #333;
+            text-align: center;
+            font-size: 1.2em;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #777;
+            cursor: pointer;
+        }
+        .cell.revealed {
+            background: #666;
+        }
+        .cell.mine {
+            background: red;
+        }
+        .mine img {
+            width: 30px;
+            height: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Minesweeper</h1>
+        <div class="grid" id="game-board"></div>
+        <p id="status"></p>
+        <button onclick="resetGame()">Restart</button>
+    </div>
+    
+    <script>
+        const rows = 9, cols = 9, minesCount = 10;
+        let board, minePositions;
+
+        function createBoard() {
+            const grid = document.getElementById("game-board");
+            grid.innerHTML = "";
+            board = Array.from({ length: rows }, () => Array(cols).fill(0));
+            minePositions = new Set();
+            while (minePositions.size < minesCount) {
+                minePositions.add(Math.floor(Math.random() * rows * cols));
+            }
+            minePositions.forEach(pos => {
+                let r = Math.floor(pos / cols);
+                let c = pos % cols;
+                board[r][c] = -1;
+            });
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const cell = document.createElement("div");
+                    cell.classList.add("cell");
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+                    cell.addEventListener("click", revealCell);
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        function revealCell(event) {
+            let cell = event.target;
+            let r = parseInt(cell.dataset.row);
+            let c = parseInt(cell.dataset.col);
+            if (board[r][c] === -1) {
+                cell.classList.add("mine");
+                cell.innerHTML = '<img src="https://img.icons8.com/emoji/48/000000/bomb-emoji.png" alt="Mine">';
+                document.getElementById("status").textContent = "Game Over!";
+                document.querySelectorAll(".cell").forEach(c => c.removeEventListener("click", revealCell));
+            } else {
+                cell.classList.add("revealed");
+                cell.textContent = "✔";
+            }
+        }
+
+        function resetGame() {
+            document.getElementById("status").textContent = "";
+            createBoard();
+        }
+
+        createBoard();
+    </script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coin Flipper</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #1a1a1a;
+            color: white;
+        }
+        .coin-container {
+            margin-top: 50px;
+        }
+        .coin {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: gold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: black;
+            margin: auto;
+            transition: transform 1s;
+        }
+        .flipping {
+            animation: flip 1s linear;
+        }
+        @keyframes flip {
+            0% { transform: rotateY(0); }
+            50% { transform: rotateY(180deg); }
+            100% { transform: rotateY(360deg); }
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            background: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: darkred;
+        }
+    </style>
+</head>
+<body>
+    <div class="coin-container">
+        <h1>Coin Flipper</h1>
+        <div class="coin" id="coin">?</div>
+        <button onclick="flipCoin()">Flip Coin</button>
+        <p id="result"></p>
+    </div>
+    
+    <script>
+        function flipCoin() {
+            const coin = document.getElementById("coin");
+            const resultText = document.getElementById("result");
+            coin.classList.add("flipping");
+            setTimeout(() => {
+                const result = Math.random() < 0.5 ? "Heads" : "Tails";
+                coin.textContent = result;
+                resultText.textContent = `Result: ${result}`;
+                coin.classList.remove("flipping");
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
