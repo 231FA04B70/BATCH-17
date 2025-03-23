@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOS Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #1a1a1a;
+            color: white;
+        }
+        .game-container {
+            margin-top: 50px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 50px);
+            grid-template-rows: repeat(4, 50px);
+            gap: 2px;
+            justify-content: center;
+            margin: auto;
+        }
+        .cell {
+            width: 50px;
+            height: 50px;
+            background: #333;
+            text-align: center;
+            font-size: 1.5em;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #777;
+            cursor: pointer;
+        }
+        .cell.taken {
+            pointer-events: none;
+        }
+        .scoreboard {
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+        .choice-buttons {
+            margin-top: 15px;
+        }
+        .choice-buttons button {
+            margin: 5px;
+            padding: 8px 15px;
+            font-size: 1em;
+            background: blue;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .choice-buttons button:hover {
+            background: darkblue;
+        }
+        .controls button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            background: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .controls button:hover {
+            background: darkred;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>SOS Game</h1>
+        <div class="scoreboard">
+            <p>Player 1 Score: <span id="score-player1">0</span></p>
+            <p>Player 2 Score: <span id="score-player2">0</span></p>
+        </div>
+        
+        <div class="choice-buttons">
+            <button onclick="setChoice('S')">Choose S</button>
+            <button onclick="setChoice('O')">Choose O</button>
+        </div>
+
+        <div class="grid" id="game-board"></div>
+        <p id="status">Player 1's Turn</p>
+
+        <div class="controls">
+            <button onclick="resetBoard()">Restart Game</button>
+            <button onclick="resetAll()">Reset Everything</button>
+        </div>
+    </div>
+    
+    <script>
+        const rows = 4, cols = 4;
+        let board, currentPlayer, selectedChoice;
+        let scorePlayer1 = 0, scorePlayer2 = 0;
+
+        function createBoard() {
+            const grid = document.getElementById("game-board");
+            grid.innerHTML = "";
+            board = Array.from({ length: rows }, () => Array(cols).fill(null));
+            currentPlayer = 1;
+            selectedChoice = "S"; // Default choice
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const cell = document.createElement("div");
+                    cell.classList.add("cell");
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+                    cell.addEventListener("click", makeMove, { once: true });
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        function setChoice(choice) {
+            selectedChoice = choice;
+        }
+
+        function makeMove(event) {
+            let cell = event.target;
+            let r = parseInt(cell.dataset.row);
+            let c = parseInt(cell.dataset.col);
+
+            if (!board[r][c]) {
+                board[r][c] = selectedChoice;
+                cell.textContent = selectedChoice;
+                cell.classList.add("taken");
+
+                if (checkWin(r, c)) {
+                    if (currentPlayer === 1) {
+                        scorePlayer1++;
+                    } else {
+                        scorePlayer2++;
+                    }
+                    updateScore();
+                    document.getElementById("status").textContent = `Player ${currentPlayer} scored! They play again.`;
+                    return; // Player gets another turn if they score
+                }
+
+                currentPlayer = currentPlayer === 1 ? 2 : 1;
+                document.getElementById("status").textContent = `Player ${currentPlayer}'s Turn`;
+            }
+        }
+
+        function checkWin(r, c) {
+            const directions = [
+                [[-1, 0], [1, 0]], // Vertical
+                [[0, -1], [0, 1]], // Horizontal
+                [[-1, -1], [1, 1]], // Diagonal (\)
+                [[-1, 1], [1, -1]]  // Diagonal (/)
+            ];
+            for (const [[dr1, dc1], [dr2, dc2]] of directions) {
+                if (
+                    getCell(r + dr1, c + dc1) === "S" &&
+                    board[r][c] === "O" &&
+                    getCell(r + dr2, c + dc2) === "S"
+                ) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function getCell(r, c) {
+            if (r >= 0 && r < rows && c >= 0 && c < cols) {
+                return board[r][c];
+            }
+            return null;
+        }
+
+        function updateScore() {
+            document.getElementById("score-player1").textContent = scorePlayer1;
+            document.getElementById("score-player2").textContent = scorePlayer2;
+        }
+
+        function resetBoard() {
+            document.getElementById("status").textContent = "Player 1's Turn";
+            createBoard();
+        }
+
+        function resetAll() {
+            scorePlayer1 = 0;
+            scorePlayer2 = 0;
+            updateScore();
+            resetBoard();
+        }
+
+        createBoard();
+    </script>
+</body>
+</html>
